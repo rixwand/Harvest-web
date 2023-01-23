@@ -6,6 +6,7 @@ import {
   IoChevronForwardOutline,
   IoChevronUp,
   IoFunnelOutline,
+  IoPricetagsOutline,
   IoSearch,
 } from "react-icons/io5";
 import bgProduk from "../public/bg-search.jpg";
@@ -13,6 +14,7 @@ import Button from "./Button";
 import undanganDigital from "../public/undangan-digital.jpeg";
 import undagan2 from "../public/undangan2.jpeg";
 import undagan1 from "../public/undanga1.jpeg";
+import arrow from "../public/arrow.svg";
 import ProductCard from "./Cards/Product-card";
 import ModalBox from "./ModalBox";
 
@@ -90,6 +92,7 @@ const Products = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [products, setProducts] = useState(data);
   const scrollYoff = useRef();
+  const filterIcon = useRef();
   const scrollEnd = () => {
     scrollYoff.current.scrollLeft = 1000;
   };
@@ -114,13 +117,13 @@ const Products = () => {
     setFilter(filterItem);
   }, []);
 
-  useEffect(() => {
-    scrollYoff.current.addEventListener("wheel", function (e) {
-      const delta = Math.max(-1, Math.min(1, e.wheelDelta || -e.detail));
-      this.scrollLeft -= delta * 110;
-      e.preventDefault();
-    });
-  });
+  // useEffect(() => {
+  //   scrollYoff.current.addEventListener("wheel", function (e) {
+  //     const delta = Math.max(-1, Math.min(1, e.wheelDelta || -e.detail));
+  //     this.scrollLeft -= delta * 110;
+  //     e.preventDefault();
+  //   });
+  // });
 
   const showModalBox = (e) => {
     const id = e.target.dataset.id;
@@ -129,18 +132,7 @@ const Products = () => {
     setShowModal(true);
   };
 
-  const handleFilter = (e) => {
-    setShowFilter(false);
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    let keys = [];
-    for (let key of formData.keys()) {
-      if (keys.find((item) => item == key) == undefined) keys.push(key);
-    }
-    const json = {};
-    keys.map((key) => {
-      Object.assign(json, { [key.toLowerCase()]: formData.getAll(key) });
-    });
+  const filterProducts = (json) => {
     let filteredProducts = [];
     if (json.hasOwnProperty("category")) {
       json.category.map((key) => {
@@ -164,7 +156,23 @@ const Products = () => {
         filteredProducts = filteredTags;
       });
     }
+    return filteredProducts;
+  };
 
+  const handleFilter = (e) => {
+    setShowFilter(false);
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    let keys = [];
+    for (let key of formData.keys()) {
+      if (keys.find((item) => item == key) == undefined) keys.push(key);
+    }
+    const json = {};
+    keys.map((key) => {
+      Object.assign(json, { [key.toLowerCase()]: formData.getAll(key) });
+    });
+
+    const filteredProducts = filterProducts(json);
     setProducts(filteredProducts.sort((a, b) => a + b));
   };
 
@@ -183,7 +191,7 @@ const Products = () => {
   };
 
   return (
-    <section id="products" data-nav="Produk" className="mt-20">
+    <section id="products" data-nav="Produk" className="mt-20 bg-[#f8f8f8]">
       <div className="search-area md:h-fit h-52 block">
         <div className="relative h-full after:w-full after:backdrop-blur-sm after:top-0 after:h-full after:bg-[#9B9B9B]/60 after:block after:absolute">
           <div className="absolute z-10 w-full h-full justify-center flex items-center">
@@ -222,27 +230,40 @@ const Products = () => {
         </div>
       </div>
 
-      <div className="filter-area container font-sourceSans h-fit flex gap-2 mt-5 relative">
-        <button
-          onClick={() => setShowFilter(!showFilter)}
-          className="bg-gradient-to-br flex items-center rounded-md from-lightBlue to-darkBlue px-3 ">
-          <IoFunnelOutline className="stroke-white [&>path]:stroke-[50px] text-sm mr-1" />
-          <span className="text-white inline-block">{" Filter"}</span>
-        </button>
-        <div
-          className={` outer-category h-[36px] w-[100%] relative scrollbar-hide overflow-x-scroll font-sourceSans scroll-smooth`}
-          ref={scrollYoff}>
-          <ul className="flex top-0 z-10 absolute w-max gap-1 left-0 ">
-            {categories.map((category, i) => (
-              <li
-                key={i}
-                className="border-2 border-darkBlue text-darkBlue rounded-md px-3 py-1">{`${category}`}</li>
-            ))}
-          </ul>
-        </div>
-        <div className=" relative right-0 h-[35.2px]">
-          <button className=" -ml-3 text-4xl bg-none" onClick={scrollEnd}>
-            <IoChevronForwardOutline className="stroke-darkBlue [&>path]:stroke-[30px]" />
+      <div className="md:container mx-5">
+        <div className="md:mx-3 md:p-3 items-center p-2 rounded font-sourceSans h-fit flex gap-2 mt-5 bg-white relative">
+          <button
+            onClick={() => {
+              setShowFilter(!showFilter);
+              filterIcon.current.classList.toggle("rotate-180");
+            }}
+            className="border-on border-2 flex items-center rounded px-3 py-1 ">
+            <span className="text-on md:text-base text-sm font-semibold inline-block">
+              {" Filter"}
+            </span>
+            <span ref={filterIcon}>
+              <IoChevronDown className="stroke-on rounded-lg" />
+            </span>
+          </button>
+          <span className="h-8 border-l-2 border-on"></span>
+          <div
+            className={` outer-category w-full md:h-9 h-8 relative scrollbar-hide overflow-x-scroll font-sourceSans scroll-smooth`}
+            ref={scrollYoff}>
+            <ul className="flex top-0 z-10 absolute w-max gap-2 left-0 ">
+              <li className="border-2 border-on font-semibold bg-on md:text-base text-sm text-white rounded px-3 py-1">
+                Terbaru
+              </li>
+              <li className="border-2 border-on font-semibold bg-white  md:text-base text-sm text-on rounded px-3 py-1">
+                Populer
+              </li>
+              <li className="border-2 border-on font-semibold bg-white  md:text-base text-sm text-on rounded px-3 py-1">
+                Custom
+              </li>
+            </ul>
+          </div>
+          <button className="text-on hidden font-semibold font-sourceSans md:text-base text-sm md:flex items-center rounded pr-4">
+            <span className="mr-[2px]">Urutkan</span>
+            <Image src={arrow} alt="arrowimg" />
           </button>
         </div>
       </div>
@@ -313,7 +334,7 @@ const Products = () => {
         </div>
       </form>
 
-      <div className="container  flex flex-wrap mt-2 justify-center md:gap-4 gap-1 md:mx-auto p-7">
+      <div className=" container flex flex-wrap mt-2 justify-between md:justify-center md:gap-4 gap-1 md:mx-auto">
         {products.map((x) => (
           <ProductCard
             className={
